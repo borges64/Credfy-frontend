@@ -1,40 +1,33 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// MUDANÇA AQUI: Adicionamos 'default' para evitar o erro de export name
-export default function middleware(request: NextRequest) {
-  
-  // 1. Pega o token dos cookies
+// Rotas que precisam de proteção
+const protectedRoutes = ['/dashboard']
+
+export function middleware(request: NextRequest) {
+  // Pega o token dos cookies
   const token = request.cookies.get('token')?.value
 
-  // 2. Define as URLs para redirecionamento
-  const signInURL = new URL('/', request.url)
-  const dashboardURL = new URL('/dashboard', request.url)
-
-  // 3. Lógica de Proteção:
-
-  // Se NÃO tem token e tenta acessar qualquer rota que comece com /dashboard
-  if (!token) {
-    if (request.nextUrl.pathname.startsWith('/dashboard')) {
-      return NextResponse.redirect(signInURL)
-    }
+  // Se o usuário tentar acessar rota protegida SEM token
+  if (protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route))) {
+      if (!token) {
+          // Redireciona para o login
+          return NextResponse.redirect(new URL('/', request.url))
+      }
   }
 
-  // Se TEM token e tenta acessar a página de login (/)
-  if (token) {
-    if (request.nextUrl.pathname === '/') {
-      return NextResponse.redirect(dashboardURL)
-    }
+  // Se o usuário JÁ tem token e tenta acessar a tela de login ('/')
+  if (request.nextUrl.pathname === '/') {
+      if (token) {
+          // Joga direto pro dashboard
+          return NextResponse.redirect(new URL('/dashboard', request.url))
+      }
   }
 
-  // Permite que a requisição continue
   return NextResponse.next()
 }
 
-// Configuração: Onde o middleware deve rodar
+// Configuração: Em quais rotas esse arquivo vai rodar
 export const config = {
-  matcher: [
-    '/', 
-    '/dashboard/:path*'
-  ]
+  matcher: ['/', '/dashboard/:path*'],
 }

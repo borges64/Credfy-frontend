@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion, Variants } from 'framer-motion'
 import { 
   FileText, TrendingUp, ShieldCheck, 
+  ChevronDown, Calculator, DollarSign, HelpCircle,
   MessageCircle, Zap, Lock, ArrowRight, X, Loader2, Landmark, Check, Smartphone, Scale, AlertTriangle, FileKey, Ban
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -324,6 +325,46 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section className="py-24 px-6 bg-black relative border-t border-zinc-900">
+  <div className="max-w-4xl mx-auto">
+      <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white">Quanto você está deixando na mesa?</h2>
+          <p className="text-zinc-400">Veja como a desorganização custa caro. Simule seu potencial.</p>
+      </div>
+
+      <RoiCalculator />
+  </div>
+</section>
+
+{/* --- SEÇÃO: FAQ (QUEBRA DE OBJEÇÕES) --- */}
+<section className="py-24 px-6 bg-zinc-950 border-t border-zinc-900">
+  <div className="max-w-3xl mx-auto">
+      <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4 text-white">Perguntas Frequentes</h2>
+          <p className="text-zinc-400">Tire suas dúvidas antes de começar.</p>
+      </div>
+      
+      <div className="space-y-4">
+          <FaqItem 
+              question="Preciso ter CNPJ para usar?" 
+              answer="Não. O Credfy atende tanto Pessoas Físicas (CPF) quanto Jurídicas (CNPJ). O sistema se adapta ao seu perfil de gestão de capital próprio."
+          />
+          <FaqItem 
+              question="O dinheiro passa pela conta do Credfy?" 
+              answer="Jamais. Somos apenas a tecnologia de gestão. O pagamento do seu cliente vai direto para a sua conta bancária (PIX ou Transferência). Não tocamos no seu dinheiro."
+          />
+          <FaqItem 
+              question="Posso cancelar quando quiser?" 
+              answer="Sim. Não exigimos fidelidade. Você pode cancelar a assinatura a qualquer momento diretamente pelo painel, sem burocracia."
+          />
+          <FaqItem
+              question="Os dados dos meus clientes estão seguros?" 
+              answer="Sim. Utilizamos criptografia de ponta a ponta e servidores seguros. Nem mesmo nossa equipe tem acesso aos detalhes sensíveis dos seus contratos sem sua autorização."
+          />
+      </div>
+  </div>
+</section>
+
       {/* --- FOOTER --- */}
       <footer className="border-t border-zinc-900 py-12 px-6 bg-black">
         <div className="max-w-7xl mx-auto">
@@ -393,4 +434,103 @@ function FeatureCard({ icon, title, desc }: any) {
       <p className="text-zinc-400 text-sm leading-relaxed">{desc}</p>
     </motion.div>
   )
+}
+
+function RoiCalculator() {
+    const [loanVolume, setLoanVolume] = useState(10000) // Começa com 10k
+    const interestRate = 10 // Média de 10% a.m
+    
+    // Cálculos
+    const revenue = loanVolume * (interestRate / 100)
+    const lostRevenue = revenue * 0.20 // Estima que 20% se perde sem gestão (esquecimento, atraso sem multa)
+    const systemCost = 97
+    
+    const profit = revenue - systemCost
+
+    return (
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8 md:p-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                
+                {/* Controles */}
+                <div className="space-y-8">
+                    <div>
+                        <label className="text-zinc-400 font-bold uppercase text-xs mb-4 block">Seu Capital na Rua (Hoje)</label>
+                        <p className="text-4xl font-black text-white mb-4">
+                            {loanVolume.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                        </p>
+                        <input 
+                            type="range" 
+                            min="1000" 
+                            max="500000" 
+                            step="1000" 
+                            value={loanVolume} 
+                            onChange={(e) => setLoanVolume(Number(e.target.value))}
+                            className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-purple-600 hover:accent-purple-500"
+                        />
+                        <div className="flex justify-between text-xs text-zinc-500 mt-2 font-mono">
+                            <span>R$ 1k</span>
+                            <span>R$ 500k</span>
+                        </div>
+                    </div>
+
+                    <div className="p-4 bg-black/40 rounded-xl border border-zinc-800">
+                        <div className="flex items-start gap-3">
+                            <AlertTriangle className="text-yellow-500 shrink-0" size={20} />
+                            <p className="text-sm text-zinc-400">
+                                Sem gestão, estima-se que você perca <strong className="text-white">~R$ {lostRevenue.toLocaleString('pt-BR')}</strong> todo mês por esquecer de cobrar multas ou atrasos.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Resultados */}
+                <div className="space-y-4">
+                    <div className="bg-black border border-zinc-800 p-6 rounded-xl flex justify-between items-center">
+                        <div>
+                            <p className="text-xs text-zinc-500 uppercase font-bold">Retorno Mensal (Médio)</p>
+                            <p className="text-2xl font-bold text-green-500">+{revenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+                        </div>
+                        <TrendingUp className="text-green-900" size={32} />
+                    </div>
+
+                    <div className="bg-purple-900/10 border border-purple-500/30 p-6 rounded-xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-bl">CUSTO CREDFY</div>
+                        <div className="flex justify-between items-center mb-2">
+                            <p className="text-xs text-purple-300 uppercase font-bold">Investimento no Sistema</p>
+                            <p className="text-xl font-bold text-white">R$ {systemCost},00</p>
+                        </div>
+                        <div className="h-px bg-purple-500/20 my-4" />
+                        <div className="flex justify-between items-center">
+                            <p className="text-sm text-zinc-300 font-bold">Seu Lucro Líquido:</p>
+                            <p className="text-3xl font-black text-white">{profit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+                        </div>
+                        <p className="text-[10px] text-center mt-4 text-purple-400">
+                            * O sistema se paga com apenas {((systemCost / revenue) * 100).toFixed(1)}% do seu lucro.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function FaqItem({ question, answer }: any) {
+    const [isOpen, setIsOpen] = useState(false)
+
+    return (
+        <div className="border border-zinc-800 rounded-xl bg-zinc-900/30 overflow-hidden transition-all">
+            <button 
+                onClick={() => setIsOpen(!isOpen)} 
+                className="w-full flex justify-between items-center p-5 text-left hover:bg-zinc-900/50 transition-colors"
+            >
+                <span className="font-bold text-zinc-200">{question}</span>
+                <ChevronDown className={`text-zinc-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {isOpen && (
+                <div className="p-5 pt-0 text-sm text-zinc-400 leading-relaxed border-t border-zinc-800/50 animate-in slide-in-from-top-2">
+                    {answer}
+                </div>
+            )}
+        </div>
+    )
 }

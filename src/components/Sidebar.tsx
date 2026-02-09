@@ -3,131 +3,152 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { User as UserIcon, LogOut, TrendingUp, LayoutDashboard, ChevronDown, ChevronUp, Wallet, Users} from 'lucide-react'
+import {
+  LayoutDashboard,
+  Users,
+  PieChart,
+  Settings,
+  LogOut,
+  ChevronDown,
+  ChevronUp,
+  Wallet,
+  TrendingUp,
+  UserCircle
+} from 'lucide-react'
+import { useLoans } from '../Context/LoansContext'
 
-
-// Interface atualizada para receber os dados
 interface SidebarProps {
-  user: { name: string } | null
-  debtors: any[] // Recebe a lista para calcular os totais
-  onLogout: () => void
+  user: { name: string; email: string };
+  onLogout: () => void;
+  // Removemos a necessidade de receber 'debtors' via props
 }
 
-export function Sidebar({ user, onLogout, debtors = [] }: SidebarProps) {
+export function Sidebar({ user, onLogout }: SidebarProps) {
   const pathname = usePathname()
+  const [isSummaryOpen, setIsSummaryOpen] = useState(true)
 
-  // Estado para controlar se mostra ou não os gráficos (Toggle)
-  const [showStats, setShowStats] = useState(false)
+  // CONECTA DIRETO NOS DADOS GLOBAIS
+  const { loans, loading } = useLoans()
 
-  // Cálculos de Performance (Protegido contra lista vazia)
-  const safeDebtors = Array.isArray(debtors) ? debtors : []
-  const totalLent = safeDebtors.reduce((acc, cur) => acc + Number(cur.amount || 0), 0)
-  const totalInterest = safeDebtors.reduce((acc, cur) => acc + (Number(cur.amount || 0) * (Number(cur.interest || 0) / 100)), 0)
+  // --- CÁLCULOS DO RESUMO RÁPIDO (IGUAL AO DASHBOARD) ---
+  const metrics = loans.reduce((acc: any, loan: any) => {
+      // Cálculo do Lucro (Juros + Multa)
+      const interestVal = loan.amount * (loan.interest / 100);
+      const profit = interestVal + loan.penalty;
 
-  // Margem de lucro (visual)
-  const profitMargin = totalLent > 0 ? Math.round((totalInterest / totalLent) * 100) : 0
+      acc.totalLent += loan.amount;
+      acc.totalProfit += profit;
 
-  // Estilo do link
-  const linkStyle = (path: string) => `
-    w-full flex items-center gap-3 px-4 py-3 font-medium transition-all rounded-r-full mr-4 mb-1
-    ${pathname === path
-      ? 'bg-purple-600/10 text-purple-400 border-l-4 border-purple-500'
-      : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900'}
-  `
+      return acc;
+  }, { totalLent: 0, totalProfit: 0 })
+
+  const menuItems = [
+    { icon: LayoutDashboard, label: 'Painel Geral', href: '/dashboard' },
+    { icon: Users, label: 'Clientes & Ranking', href: '/dashboard/clients' }, // Exemplo de rota
+    { icon: PieChart, label: 'Gráficos Detalhados', href: '/dashboard/analytics' }, // Exemplo de rota
+    // { icon: Settings, label: 'Configurações', href: '/dashboard/settings' },
+  ]
 
   return (
-    <aside className="w-72 bg-zinc-950 border-r border-zinc-800 flex flex-col justify-between hidden md:flex shrink-0">
-      <div className="pt-6 pl-6">
-        <h2 className="text-2xl font-bold  tracking-tighter mb-8">
-          Cred<span className="text-purple-500">fy</span>
-        </h2>
-        {/* User Info */}
-        <div className="flex items-center gap-3 mb-8 p-3 bg-zinc-900 rounded-lg border border-zinc-800 mr-6">
-          <div className="w-10 h-10 rounded-full bg-purple-600/20 flex items-center justify-center text-purple-400">
-            <UserIcon size={20} />
+    <aside className="w-64 bg-zinc-950 border-r border-zinc-900 flex flex-col hidden md:flex h-full relative z-20">
+
+      {/* PERFIL */}
+      <div className="p-6 border-b border-zinc-900">
+        <div className="flex items-center gap-3 bg-zinc-900/50 p-3 rounded-xl border border-zinc-800">
+          <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center text-white font-bold shadow-[0_0_10px_rgba(147,51,234,0.5)]">
+            <UserCircle size={24} />
           </div>
           <div className="overflow-hidden">
-            <p className="text-xs text-zinc-500 uppercase font-semibold">Bem vindo,</p>
-            <p className="text-sm font-bold text-white truncate">
-              {user?.name || "..."}
-            </p>
+            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">BEM VINDO,</p>
+            <p className="text-sm font-bold text-white truncate">{user?.name || 'Gestor'}</p>
           </div>
         </div>
-
-
-        {/* Menu de Navegação */}
-        <nav className="mb-6">
-          <Link href="/dashboard" className={linkStyle('/dashboard')}>
-            <LayoutDashboard size={18} />
-            Painel Geral
-          </Link>
-          <Link href="/dashboard/clients" className={linkStyle('/dashboard/clients')}>
-            <Users size={18} />
-            Clientes & Ranking
-          </Link>
-          <Link href="/dashboard/performance" className={linkStyle('/dashboard/performance')}>
-            <TrendingUp size={18} />
-            Gráficos Detalhados
-          </Link>
-         
-        </nav>
-
-
-
-
-        {/* --- SEÇÃO RETRÁTIL DE ESTATÍSTICAS (O que você pediu) --- */}
-        <div className="mr-6 border-t border-zinc-800 pt-4">
-          <button
-            onClick={() => setShowStats(!showStats)}
-            className="w-full flex items-center justify-between text-xs font-bold text-zinc-500 uppercase hover:text-white transition-colors mb-4"
-          >
-            <span className="flex items-center gap-2"><Wallet size={14} /> Resumo Rápido</span>
-            {showStats ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </button>
-
-          {/* Só renderiza se o usuário clicou (showStats === true) */}
-          {showStats && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
-
-              {/* Barra 1: Total Emprestado */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs text-zinc-400">
-                  <span>Emprestado</span>
-                  <span>R$ {totalLent.toFixed(0)}</span>
-                </div>
-                <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
-                  <div className="h-full bg-zinc-600 w-full opacity-50"></div>
-                </div>
-              </div>
-
-              {/* Barra 2: Lucro Projetado */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs text-purple-300 font-bold">
-                  <span>Lucro Previsto</span>
-                  <span>+ R$ {totalInterest.toFixed(0)}</span>
-                </div>
-                <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
-                  <div
-                    className="h-full bg-purple-600 transition-all duration-1000"
-                    style={{ width: `${Math.min(profitMargin * 2, 100)}%` }}
-                  ></div>
-                </div>
-                <p className="text-[10px] text-zinc-600 text-right mt-1">Margem média: {profitMargin}%</p>
-              </div>
-            </div>
-          )}
-        </div>
-
       </div>
 
-      <div className="p-6 border-t border-zinc-900">
+      {/* MENU DE NAVEGAÇÃO */}
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+        {menuItems.map((item) => {
+          const isActive = pathname === item.href
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                isActive
+                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/20'
+                  : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900'
+              }`}
+            >
+              <item.icon size={20} />
+              {item.label}
+            </Link>
+          )
+        })}
+      </nav>
+
+      {/* --- RESUMO RÁPIDO (AGORA FUNCIONA EM QUALQUER PÁGINA) --- */}
+      <div className="p-4 border-t border-zinc-900">
         <button
-          onClick={onLogout}
-          className="w-full flex items-center gap-2 text-zinc-500 hover:text-red-400 transition-colors text-sm font-medium"
+          onClick={() => setIsSummaryOpen(!isSummaryOpen)}
+          className="w-full flex items-center justify-between text-xs font-bold text-zinc-500 uppercase mb-4 hover:text-white transition-colors"
         >
-          <LogOut size={16} />
-          Encerrar Sessão
+          <div className="flex items-center gap-2">
+            <Wallet size={14} /> Resumo Rápido
+          </div>
+          {isSummaryOpen ? <ChevronDown size={14}/> : <ChevronUp size={14}/>}
         </button>
+
+        {isSummaryOpen && (
+          <div className="space-y-4 animate-in slide-in-from-bottom-2 duration-300">
+            {loading ? (
+                <div className="h-20 bg-zinc-900/50 rounded-xl animate-pulse" />
+            ) : (
+                <>
+                    <div className="space-y-1">
+                        <div className="flex justify-between text-xs text-zinc-400">
+                            <span>Emprestado</span>
+                            <span className="text-zinc-500">R$ 0</span>
+                        </div>
+                        <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
+                            <div className="h-full bg-zinc-700 w-full" />
+                        </div>
+                        <div className="flex justify-end">
+                             <span className="text-sm font-bold text-white font-mono">
+                                {metrics.totalLent.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                             </span>
+                        </div>
+                    </div>
+
+                    <div className="space-y-1">
+                        <div className="flex justify-between text-xs text-zinc-400">
+                            <span>Lucro Previsto</span>
+                            <span className="text-green-500 flex items-center gap-1"><TrendingUp size={10}/> ROI</span>
+                        </div>
+                        <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
+                             {/* Barra de progresso visual (estética) */}
+                            <div className="h-full bg-purple-600 w-full" />
+                        </div>
+                        <div className="flex justify-between items-center mt-1">
+                             <span className="text-[10px] text-zinc-600">Margem média: {metrics.totalLent > 0 ? ((metrics.totalProfit / metrics.totalLent) * 100).toFixed(0) : 0}%</span>
+                             <span className="text-sm font-bold text-white font-mono">
+                                + {metrics.totalProfit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                             </span>
+                        </div>
+                    </div>
+                </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* LOGOUT */}
+      <div className="p-4 bg-zinc-950">
+         <button
+            onClick={onLogout}
+            className="w-full flex items-center gap-2 text-zinc-600 hover:text-red-500 transition-colors text-xs font-bold px-2 py-2"
+         >
+            <LogOut size={16} /> Sair do Sistema
+         </button>
       </div>
     </aside>
   )
