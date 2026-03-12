@@ -2,14 +2,15 @@
 
 import { useState } from 'react'
 import { motion, Variants } from 'framer-motion'
-import { 
-  FileText, TrendingUp, ShieldCheck, 
+import {
+  FileText, TrendingUp, ShieldCheck,
   ChevronDown, Calculator, DollarSign, HelpCircle,
   MessageCircle, Zap, Lock, ArrowRight, X, Loader2, Landmark, Check, Smartphone, Scale, AlertTriangle, FileKey, Ban
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import api from '@/src/services/api'
 import Cookies from 'js-cookie'
+import { RevenueSimulator } from '@/src/components/RevenueSimulator'
 
 // --- VARIANTES DE ANIMAÇÃO ---
 const fadeInUp: Variants = {
@@ -24,13 +25,13 @@ const staggerContainer: Variants = {
 
 export default function LandingPage() {
   const router = useRouter()
-  
+
   // --- ESTADOS DO MODAL DE LOGIN ---
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [isRegister, setIsRegister] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [authError, setAuthError] = useState('')
-  
+
   const [formData, setFormData] = useState({
       name: '',
       email: '',
@@ -50,17 +51,17 @@ export default function LandingPage() {
                   email: formData.email,
                   password: formData.password
               })
-              const session = await api.post('/sessions', { 
-                  email: formData.email, 
-                  password: formData.password 
+              const session = await api.post('/sessions', {
+                  email: formData.email,
+                  password: formData.password
               })
               Cookies.set('token', session.data.token, { expires: 7 })
               router.push('/dashboard')
 
           } else {
-              const response = await api.post('/sessions', { 
-                  email: formData.email, 
-                  password: formData.password 
+              const response = await api.post('/sessions', {
+                  email: formData.email,
+                  password: formData.password
               })
               Cookies.set('token', response.data.token, { expires: 7 })
               router.push('/dashboard')
@@ -75,7 +76,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-purple-500/30 overflow-x-hidden font-sans">
-      
+
       {/* --- NAVBAR --- */}
       <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-black/50 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -86,14 +87,14 @@ export default function LandingPage() {
             <span className="font-bold text-xl tracking-tight">Cred<span className="text-purple-500">fy</span></span>
           </div>
           <div className="flex gap-4">
-            <button 
-                onClick={() => { setIsRegister(false); setIsAuthModalOpen(true) }} 
+            <button
+                onClick={() => { setIsRegister(false); setIsAuthModalOpen(true) }}
                 className="hidden md:block px-5 py-2 text-sm font-bold text-zinc-300 hover:text-white transition-colors"
             >
                 Acessar Plataforma
             </button>
-            <button 
-                onClick={() => { setIsRegister(true); setIsAuthModalOpen(true) }} 
+            <button
+                onClick={() => { setIsRegister(true); setIsAuthModalOpen(true) }}
                 className="px-5 py-2 text-sm font-bold bg-white text-black rounded-full hover:bg-purple-500 hover:text-white transition-all shadow-lg active:scale-95"
             >
                 Começar
@@ -109,11 +110,11 @@ export default function LandingPage() {
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <motion.div initial="hidden" animate="visible" variants={staggerContainer}>
-            
+
             <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 text-[10px] md:text-xs font-bold uppercase tracking-wider mb-6">
               <Landmark size={12} fill="currentColor" /> Sistema Profissional para Gestores
             </motion.div>
-            
+
             <motion.h1 variants={fadeInUp} className="text-4xl md:text-7xl font-black tracking-tight mb-6 leading-tight">
               A Gestão Inteligente do <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600 animate-gradient">
@@ -126,8 +127,8 @@ export default function LandingPage() {
             </motion.p>
 
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button 
-                onClick={() => { setIsRegister(true); setIsAuthModalOpen(true) }} 
+              <button
+                onClick={() => { setIsRegister(true); setIsAuthModalOpen(true) }}
                 className="w-full sm:w-auto px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-lg shadow-[0_0_30px_rgba(147,51,234,0.4)] transition-all hover:scale-105 flex items-center justify-center gap-2"
               >
                 Criar Conta Grátis <ArrowRight size={20} />
@@ -138,7 +139,7 @@ export default function LandingPage() {
         </div>
 
         {/* --- ÁREA DO PRINT (MOCKUP) --- */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.5 }}
@@ -157,13 +158,13 @@ export default function LandingPage() {
             </div>
 
             <div className="aspect-video bg-zinc-950 relative flex items-center justify-center overflow-hidden">
-                {/* ATENÇÃO: Coloque sua imagem na pasta 'public' com o nome 'dashboard.png' 
-                   e altere o src abaixo para '/dashboard.png' 
+                {/* ATENÇÃO: Coloque sua imagem na pasta 'public' com o nome 'dashboard.png'
+                   e altere o src abaixo para '/dashboard.png'
                 */}
-                <img 
-                    src="https://placehold.co/1200x675/0a0a0a/333?text=Cole+o+Print+Aqui+(dashboard.png)" 
-                    alt="Dashboard Credfy" 
-                    className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-[1.01] transform" 
+                <img
+                    src="https://placehold.co/1200x675/0a0a0a/333?text=Cole+o+Print+Aqui+(dashboard.png)"
+                    alt="Dashboard Credfy"
+                    className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-[1.01] transform"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
             </div>
@@ -181,32 +182,32 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <FeatureCard 
+            <FeatureCard
               icon={<FileText className="text-blue-400" />}
               title="Formalização Jurídica"
               desc="Emissão automática de Contratos e Recibos (CCB/Mútuo). Garanta a validade jurídica de todas as suas operações."
             />
-            <FeatureCard 
+            <FeatureCard
               icon={<ShieldCheck className="text-green-500" />}
               title="Análise de Carteira"
               desc="Classificação de risco de clientes e ranking de pagadores. Identifique bons clientes e proteja seu capital."
             />
-            <FeatureCard 
+            <FeatureCard
               icon={<TrendingUp className="text-purple-400" />}
               title="Controle Financeiro"
               desc="Cálculo automático de juros simples e compostos, multas e amortizações. O sistema faz a matemática por você."
             />
-            <FeatureCard 
+            <FeatureCard
               icon={<MessageCircle className="text-green-400" />}
               title="Cobrança WhatsApp"
               desc="Envie lembretes e cobranças com um clique direto para o WhatsApp do cliente. Reduza a inadimplência."
             />
-            <FeatureCard 
+            <FeatureCard
               icon={<Smartphone className="text-red-500" />}
               title="100% Mobile"
               desc="Acesse sua carteira de qualquer lugar. Layout otimizado para celulares e tablets."
             />
-             <FeatureCard 
+             <FeatureCard
               icon={<Lock className="text-yellow-400" />}
               title="Segurança Total"
               desc="Dados criptografados e backups diários. Sua operação financeira blindada contra perdas."
@@ -218,7 +219,7 @@ export default function LandingPage() {
       {/* --- SEÇÃO LEGAL & COMPLIANCE (ROBUSTA) --- */}
       <section className="py-20 px-6 bg-[#050505] border-y border-zinc-900 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-zinc-800/10 rounded-full blur-[120px] pointer-events-none" />
-        
+
         <div className="max-w-7xl mx-auto relative z-10">
             <div className="text-center mb-16">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-700 text-zinc-300 text-xs font-bold uppercase mb-6">
@@ -233,7 +234,7 @@ export default function LandingPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                
+
                 {/* Card 1 - Natureza do Software */}
                 <div className="p-8 rounded-2xl bg-zinc-900/30 border border-zinc-800 flex gap-6 items-start hover:bg-zinc-900/50 transition-colors">
                     <div className="p-4 bg-blue-900/20 rounded-xl text-blue-400 border border-blue-900/30">
@@ -287,7 +288,7 @@ export default function LandingPage() {
                 </div>
 
             </div>
-            
+
             {/* Aviso Destacado */}
             <div className="p-6 bg-zinc-900 border-l-4 border-purple-600 rounded-r-lg">
                 <p className="text-zinc-300 text-sm italic">
@@ -306,13 +307,13 @@ export default function LandingPage() {
                 Abandone as planilhas inseguras. Junte-se a gestores que movimentam milhões com organização e segurança.
             </p>
             <div className="flex flex-col md:flex-row gap-4 justify-center">
-                <button 
-                    onClick={() => { setIsRegister(true); setIsAuthModalOpen(true) }} 
+                <button
+                    onClick={() => { setIsRegister(true); setIsAuthModalOpen(true) }}
                     className="px-10 py-5 bg-white text-black text-lg font-bold rounded-full hover:bg-zinc-200 hover:scale-105 transition-all shadow-[0_0_40px_rgba(255,255,255,0.3)]"
                 >
                     Criar Conta Gratuita
                 </button>
-                <button 
+                <button
                     onClick={() => { setIsRegister(false); setIsAuthModalOpen(true) }}
                     className="px-10 py-5 bg-transparent border border-zinc-700 text-white text-lg font-bold rounded-full hover:bg-zinc-900 transition-all"
                 >
@@ -343,26 +344,28 @@ export default function LandingPage() {
           <h2 className="text-3xl font-bold mb-4 text-white">Perguntas Frequentes</h2>
           <p className="text-zinc-400">Tire suas dúvidas antes de começar.</p>
       </div>
-      
+
       <div className="space-y-4">
-          <FaqItem 
-              question="Preciso ter CNPJ para usar?" 
+          <FaqItem
+              question="Preciso ter CNPJ para usar?"
               answer="Não. O Credfy atende tanto Pessoas Físicas (CPF) quanto Jurídicas (CNPJ). O sistema se adapta ao seu perfil de gestão de capital próprio."
           />
-          <FaqItem 
-              question="O dinheiro passa pela conta do Credfy?" 
+          <FaqItem
+              question="O dinheiro passa pela conta do Credfy?"
               answer="Jamais. Somos apenas a tecnologia de gestão. O pagamento do seu cliente vai direto para a sua conta bancária (PIX ou Transferência). Não tocamos no seu dinheiro."
           />
-          <FaqItem 
-              question="Posso cancelar quando quiser?" 
+          <FaqItem
+              question="Posso cancelar quando quiser?"
               answer="Sim. Não exigimos fidelidade. Você pode cancelar a assinatura a qualquer momento diretamente pelo painel, sem burocracia."
           />
           <FaqItem
-              question="Os dados dos meus clientes estão seguros?" 
+              question="Os dados dos meus clientes estão seguros?"
               answer="Sim. Utilizamos criptografia de ponta a ponta e servidores seguros. Nem mesmo nossa equipe tem acesso aos detalhes sensíveis dos seus contratos sem sua autorização."
           />
       </div>
+      <RevenueSimulator />
   </div>
+
 </section>
 
       {/* --- FOOTER --- */}
@@ -382,7 +385,7 @@ export default function LandingPage() {
                     <a href="#" className="hover:text-white transition-colors">Suporte</a>
                 </div>
             </div>
-            
+
             {/* Aviso Legal de Rodapé */}
             <div className="border-t border-zinc-900 pt-8 text-center">
                 <p className="text-zinc-700 text-[10px] md:text-xs leading-relaxed max-w-3xl mx-auto">
@@ -439,18 +442,18 @@ function FeatureCard({ icon, title, desc }: any) {
 function RoiCalculator() {
     const [loanVolume, setLoanVolume] = useState(10000) // Começa com 10k
     const interestRate = 10 // Média de 10% a.m
-    
+
     // Cálculos
     const revenue = loanVolume * (interestRate / 100)
     const lostRevenue = revenue * 0.20 // Estima que 20% se perde sem gestão (esquecimento, atraso sem multa)
     const systemCost = 97
-    
+
     const profit = revenue - systemCost
 
     return (
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8 md:p-12">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                
+
                 {/* Controles */}
                 <div className="space-y-8">
                     <div>
@@ -458,12 +461,12 @@ function RoiCalculator() {
                         <p className="text-4xl font-black text-white mb-4">
                             {loanVolume.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                         </p>
-                        <input 
-                            type="range" 
-                            min="1000" 
-                            max="500000" 
-                            step="1000" 
-                            value={loanVolume} 
+                        <input
+                            type="range"
+                            min="1000"
+                            max="500000"
+                            step="1000"
+                            value={loanVolume}
                             onChange={(e) => setLoanVolume(Number(e.target.value))}
                             className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-purple-600 hover:accent-purple-500"
                         />
@@ -519,8 +522,8 @@ function FaqItem({ question, answer }: any) {
 
     return (
         <div className="border border-zinc-800 rounded-xl bg-zinc-900/30 overflow-hidden transition-all">
-            <button 
-                onClick={() => setIsOpen(!isOpen)} 
+            <button
+                onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex justify-between items-center p-5 text-left hover:bg-zinc-900/50 transition-colors"
             >
                 <span className="font-bold text-zinc-200">{question}</span>
